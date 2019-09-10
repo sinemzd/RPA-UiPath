@@ -1,0 +1,581 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="GetTransactionData" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=mscorlib" xmlns:sd="clr-namespace:System.Data;assembly=System.Data" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_TransactionNumber" Type="InArgument(x:Int32)" />
+    <x:Property Name="in_Config" Type="InArgument(scg:Dictionary(x:String, x:Object))" />
+    <x:Property Name="out_TransactionItem" Type="OutArgument(ui:QueueItem)" />
+    <x:Property Name="out_TransactionField1" Type="OutArgument(x:String)" />
+    <x:Property Name="out_TransactionField2" Type="OutArgument(x:String)" />
+    <x:Property Name="out_TransactionID" Type="OutArgument(x:String)" />
+    <x:Property Name="io_TransactionData" Type="InOutArgument(sd:DataTable)" />
+    <x:Property Name="io_masrafCounter" Type="InOutArgument(x:Int32)" />
+    <x:Property Name="io_statusCompletedDT" Type="InOutArgument(sd:DataTable)" />
+  </x:Members>
+  <mva:VisualBasic.Settings>
+    <x:Null />
+  </mva:VisualBasic.Settings>
+  <sap:VirtualizedContainerService.HintSize>1065,6784</sap:VirtualizedContainerService.HintSize>
+  <sap2010:WorkflowViewState.IdRef>GetTransactionData_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <scg:List x:TypeArguments="x:String" Capacity="24">
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Validation</x:String>
+      <x:String>System.Activities.XamlIntegration</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Drawing</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>System.Xml</x:String>
+      <x:String>System.Xml.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>System.Windows.Markup</x:String>
+      <x:String>Microsoft.Activities</x:String>
+      <x:String>System.Xml.Serialization</x:String>
+      <x:String>Microsoft.VisualBasic.CompilerServices</x:String>
+    </scg:List>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <scg:List x:TypeArguments="AssemblyReference" Capacity="23">
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Drawing</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Xml</AssemblyReference>
+      <AssemblyReference>System.Xml.Linq</AssemblyReference>
+      <AssemblyReference>PresentationFramework</AssemblyReference>
+      <AssemblyReference>WindowsBase</AssemblyReference>
+      <AssemblyReference>PresentationCore</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>Microsoft.Activities</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.Composition</AssemblyReference>
+      <AssemblyReference>System.ServiceModel</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualStudio.Services.Common</AssemblyReference>
+      <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Excel</AssemblyReference>
+      <AssemblyReference>UiPath.Mail</AssemblyReference>
+      <AssemblyReference>System.ValueTuple</AssemblyReference>
+    </scg:List>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence sap2010:Annotation.AnnotationText="Description: Get data from spreadsheets, databases, email, web API or UiPath server queues. If no new data, set out_TransactionItem to Nothing. &#xA;&#xA;For a linear process (not repetitive), set out_TransactionItem only for in_TransactionNumber 1 - first and only transaction. &#xA;&#xA;If the process is repeatable, set io_TransactionData once for in_TransactionNumber 1, then assign a new out_TransactionItem by using the in_TransactionNumber to index io_TransactionData. Be aware that, at the end of the io_TransactionData collection, it is your responsibility to set out_TransactionItem to Nothing, thus ending the process." DisplayName="GetTransactionData" sap:VirtualizedContainerService.HintSize="1045,6684" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="scg:IEnumerable(ui:QueueItem)" Name="queueItemAktivite" />
+      <Variable x:TypeArguments="scg:IEnumerable(ui:QueueItem)" Name="queueItemMasraf" />
+      <Variable x:TypeArguments="ui:GenericValue" Name="mailAddress" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:GetQueueItems Duration="{x:Null}" From="{x:Null}" Skip="{x:Null}" TimeoutMS="{x:Null}" To="{x:Null}" Top="{x:Null}" DisplayName="Get Queue Items" FilterStrategy="Equals" sap:VirtualizedContainerService.HintSize="1003,22" sap2010:WorkflowViewState.IdRef="GetQueueItems_1" Priority="[0]" QueueItemStates="New, InProgress, Successful" QueueName="[in_Config(&quot;OrchestratorQueueName&quot;).ToString]" Reference="Aktivite" Result="[queueItemAktivite]" />
+    <ui:GetRobotAsset TimeoutMS="{x:Null}" AssetName="errorMails" DisplayName="Get Asset" sap:VirtualizedContainerService.HintSize="1003,22" sap2010:WorkflowViewState.IdRef="GetRobotAsset_2">
+      <ui:GetRobotAsset.Value>
+        <OutArgument x:TypeArguments="ui:GenericValue">[mailAddress]</OutArgument>
+      </ui:GetRobotAsset.Value>
+    </ui:GetRobotAsset>
+    <If Condition="[in_TransactionNumber = 1]" sap:VirtualizedContainerService.HintSize="1003,2119" sap2010:WorkflowViewState.IdRef="If_3">
+      <If.Then>
+        <If Condition="[queueItemAktivite.Count = 0]" sap:VirtualizedContainerService.HintSize="858,1969" sap2010:WorkflowViewState.IdRef="If_2">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+              <x:Boolean x:Key="IsPinned">False</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <If.Then>
+            <Sequence DisplayName="Sequence" sap:VirtualizedContainerService.HintSize="713,1819" sap2010:WorkflowViewState.IdRef="Sequence_4">
+              <Sequence.Variables>
+                <Variable x:TypeArguments="sd:DataTable" Name="errorAktiviteQueue" />
+                <Variable x:TypeArguments="sd:DataTable" Name="aktiviteDT" />
+                <Variable x:TypeArguments="sd:DataTable" Name="faultyDT" />
+                <Variable x:TypeArguments="x:Int32" Name="rowIndexAktivite" />
+              </Sequence.Variables>
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+              <ui:ReadRange AddHeaders="True" DataTable="[io_TransactionData]" DisplayName="Read Range" sap:VirtualizedContainerService.HintSize="671,87" sap2010:WorkflowViewState.IdRef="ReadRange_1" SheetName="Sheet1" WorkbookPath="Data\Aktiviteler.xlsx">
+                <ui:ReadRange.Range>
+                  <InArgument x:TypeArguments="x:String">
+                    <Literal x:TypeArguments="x:String" Value="" />
+                  </InArgument>
+                </ui:ReadRange.Range>
+              </ui:ReadRange>
+              <ui:FilterDataTable DataTable="[io_TransactionData]" DisplayName="Filter Data Table" FilterRowsMode="Keep" sap:VirtualizedContainerService.HintSize="671,59" sap2010:WorkflowViewState.IdRef="FilterDataTable_1" OutputDataTable="[faultyDT]" SelectColumnsMode="Keep">
+                <ui:FilterDataTable.Filters>
+                  <scg:List x:TypeArguments="ui:FilterOperationArgument" Capacity="16">
+                    <ui:FilterOperationArgument Operand="{x:Null}" BooleanOperator="And" Operator="EMPTY">
+                      <ui:FilterOperationArgument.Column>
+                        <InArgument x:TypeArguments="x:String">["Aktivite No"]</InArgument>
+                      </ui:FilterOperationArgument.Column>
+                    </ui:FilterOperationArgument>
+                    <ui:FilterOperationArgument Operand="{x:Null}" BooleanOperator="Or" Operator="EMPTY">
+                      <ui:FilterOperationArgument.Column>
+                        <InArgument x:TypeArguments="x:String">["Tarih"]</InArgument>
+                      </ui:FilterOperationArgument.Column>
+                    </ui:FilterOperationArgument>
+                    <ui:FilterOperationArgument Operand="{x:Null}" BooleanOperator="Or" Operator="EMPTY">
+                      <ui:FilterOperationArgument.Column>
+                        <InArgument x:TypeArguments="x:String">["Aktivite Tipi"]</InArgument>
+                      </ui:FilterOperationArgument.Column>
+                    </ui:FilterOperationArgument>
+                    <ui:FilterOperationArgument Operand="{x:Null}" BooleanOperator="Or" Operator="EMPTY">
+                      <ui:FilterOperationArgument.Column>
+                        <InArgument x:TypeArguments="x:String">["Kapsam"]</InArgument>
+                      </ui:FilterOperationArgument.Column>
+                    </ui:FilterOperationArgument>
+                    <ui:FilterOperationArgument Operand="{x:Null}" BooleanOperator="Or" Operator="EMPTY">
+                      <ui:FilterOperationArgument.Column>
+                        <InArgument x:TypeArguments="x:String">["Proje"]</InArgument>
+                      </ui:FilterOperationArgument.Column>
+                    </ui:FilterOperationArgument>
+                    <ui:FilterOperationArgument Operand="{x:Null}" BooleanOperator="Or" Operator="EMPTY">
+                      <ui:FilterOperationArgument.Column>
+                        <InArgument x:TypeArguments="x:String">["Modül"]</InArgument>
+                      </ui:FilterOperationArgument.Column>
+                    </ui:FilterOperationArgument>
+                    <ui:FilterOperationArgument Operand="{x:Null}" BooleanOperator="Or" Operator="EMPTY">
+                      <ui:FilterOperationArgument.Column>
+                        <InArgument x:TypeArguments="x:String">["Aktivite Yeri"]</InArgument>
+                      </ui:FilterOperationArgument.Column>
+                    </ui:FilterOperationArgument>
+                    <ui:FilterOperationArgument Operand="{x:Null}" BooleanOperator="Or" Operator="EMPTY">
+                      <ui:FilterOperationArgument.Column>
+                        <InArgument x:TypeArguments="x:String">["Gidilen Yer"]</InArgument>
+                      </ui:FilterOperationArgument.Column>
+                    </ui:FilterOperationArgument>
+                    <ui:FilterOperationArgument Operand="{x:Null}" BooleanOperator="Or" Operator="EMPTY">
+                      <ui:FilterOperationArgument.Column>
+                        <InArgument x:TypeArguments="x:String">["Çalışma Saati"]</InArgument>
+                      </ui:FilterOperationArgument.Column>
+                    </ui:FilterOperationArgument>
+                    <ui:FilterOperationArgument Operand="{x:Null}" BooleanOperator="Or" Operator="EMPTY">
+                      <ui:FilterOperationArgument.Column>
+                        <InArgument x:TypeArguments="x:String">["Açıklama"]</InArgument>
+                      </ui:FilterOperationArgument.Column>
+                    </ui:FilterOperationArgument>
+                  </scg:List>
+                </ui:FilterDataTable.Filters>
+                <ui:FilterDataTable.SelectColumns>
+                  <scg:List x:TypeArguments="InArgument" Capacity="4">
+                    <x:Null />
+                  </scg:List>
+                </ui:FilterDataTable.SelectColumns>
+                <sap:WorkflowViewStateService.ViewState>
+                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                    <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                    <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                  </scg:Dictionary>
+                </sap:WorkflowViewStateService.ViewState>
+              </ui:FilterDataTable>
+              <ui:ForEachRow CurrentIndex="{x:Null}" DataTable="[faultyDT]" DisplayName="For Each Row" sap:VirtualizedContainerService.HintSize="671,923" sap2010:WorkflowViewState.IdRef="ForEachRow_3">
+                <ui:ForEachRow.Body>
+                  <ActivityAction x:TypeArguments="sd:DataRow">
+                    <ActivityAction.Argument>
+                      <DelegateInArgument x:TypeArguments="sd:DataRow" Name="row" />
+                    </ActivityAction.Argument>
+                    <Sequence sap:VirtualizedContainerService.HintSize="526,774" sap2010:WorkflowViewState.IdRef="Sequence_15">
+                      <sap:WorkflowViewStateService.ViewState>
+                        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                          <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                        </scg:Dictionary>
+                      </sap:WorkflowViewStateService.ViewState>
+                      <ui:WriteCell Cell="L1" DisplayName="Write Cell" sap:VirtualizedContainerService.HintSize="484,115" sap2010:WorkflowViewState.IdRef="WriteCell_3" SheetName="Sheet1" Text="Status" WorkbookPath="Data\Aktiviteler.xlsx" />
+                      <ui:LookupDataTable CellValue="{x:Null}" LookupColumnIndex="{x:Null}" LookupDataColumn="{x:Null}" TargetColumnIndex="{x:Null}" TargetColumnName="{x:Null}" TargetDataColumn="{x:Null}" DataTable="[io_TransactionData]" DisplayName="Lookup Data Table" sap:VirtualizedContainerService.HintSize="484,22" sap2010:WorkflowViewState.IdRef="LookupDataTable_1" LookupColumnName="Aktivite No" LookupValue="[row.Item(0).ToString]" RowIndex="[rowIndexAktivite]" />
+                      <If Condition="[io_TransactionData.Columns.Contains(&quot;Status&quot;)]" sap:VirtualizedContainerService.HintSize="484,210" sap2010:WorkflowViewState.IdRef="If_12">
+                        <If.Else>
+                          <ui:AddDataColumn x:TypeArguments="x:String" Column="{x:Null}" DefaultValue="{x:Null}" AllowDBNull="True" AutoIncrement="False" ColumnName="Status" DataTable="[io_TransactionData]" DisplayName="Add Data Column" sap:VirtualizedContainerService.HintSize="200,22" sap2010:WorkflowViewState.IdRef="AddDataColumn`1_3" MaxLength="100" Unique="False" />
+                        </If.Else>
+                      </If>
+                      <ui:WriteCell Cell="[&quot;L&quot; + (rowIndexAktivite+2).ToString]" DisplayName="Write Cell" sap:VirtualizedContainerService.HintSize="484,115" sap2010:WorkflowViewState.IdRef="WriteCell_1" SheetName="Sheet1" Text="Failed" WorkbookPath="Data\Aktiviteler.xlsx" />
+                      <Assign sap:VirtualizedContainerService.HintSize="484,60" sap2010:WorkflowViewState.IdRef="Assign_7">
+                        <Assign.To>
+                          <OutArgument x:TypeArguments="x:Object">[io_TransactionData(rowIndexAktivite)("Status")]</OutArgument>
+                        </Assign.To>
+                        <Assign.Value>
+                          <InArgument x:TypeArguments="x:Object">["Failed"]</InArgument>
+                        </Assign.Value>
+                      </Assign>
+                    </Sequence>
+                  </ActivityAction>
+                </ui:ForEachRow.Body>
+                <sap:WorkflowViewStateService.ViewState>
+                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                    <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                    <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                  </scg:Dictionary>
+                </sap:WorkflowViewStateService.ViewState>
+              </ui:ForEachRow>
+              <ui:ForEachRow CurrentIndex="{x:Null}" DataTable="[io_TransactionData]" DisplayName="For Each Row" sap:VirtualizedContainerService.HintSize="671,538" sap2010:WorkflowViewState.IdRef="ForEachRow_1">
+                <ui:ForEachRow.Body>
+                  <ActivityAction x:TypeArguments="sd:DataRow">
+                    <ActivityAction.Argument>
+                      <DelegateInArgument x:TypeArguments="sd:DataRow" Name="row" />
+                    </ActivityAction.Argument>
+                    <Sequence DisplayName="Body" sap:VirtualizedContainerService.HintSize="621,389" sap2010:WorkflowViewState.IdRef="Sequence_3">
+                      <sap:WorkflowViewStateService.ViewState>
+                        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                          <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                        </scg:Dictionary>
+                      </sap:WorkflowViewStateService.ViewState>
+                      <If Condition="[row.Item(&quot;Status&quot;).ToString.Equals(&quot;Failed&quot;)]" sap:VirtualizedContainerService.HintSize="579,297" sap2010:WorkflowViewState.IdRef="If_10">
+                        <If.Then>
+                          <ui:SendOutlookMail Account="{x:Null}" Bcc="{x:Null}" Cc="{x:Null}" MailMessage="{x:Null}" TimeoutMS="{x:Null}" Body="Due to missing data/rows in Excel, there is/are (an activity)/activities that cannot be entered whose status has been changed to failed." DisplayName="Send Outlook Mail Message" sap:VirtualizedContainerService.HintSize="334,147" sap2010:WorkflowViewState.IdRef="SendOutlookMail_3" IsBodyHtml="False" IsDraft="False" Subject="ErrorMessages for ActivityExpense" To="[mailAddress]">
+                            <ui:SendOutlookMail.Files>
+                              <scg:List x:TypeArguments="InArgument(x:String)" Capacity="4">
+                                <InArgument x:TypeArguments="x:String">C:\Users\TR30111\Documents\UiPath\LatestActivityExpense\Data\Aktiviteler.xlsx</InArgument>
+                              </scg:List>
+                            </ui:SendOutlookMail.Files>
+                          </ui:SendOutlookMail>
+                        </If.Then>
+                        <If.Else>
+                          <ui:AddQueueItem ServiceBaseAddress="{x:Null}" TimeoutMS="{x:Null}" DisplayName="Add Queue Item" sap:VirtualizedContainerService.HintSize="200,22" sap2010:WorkflowViewState.IdRef="AddQueueItem_1" Priority="High" QueueType="[in_Config(&quot;OrchestratorQueueName&quot;).ToString]" Reference="Aktivite">
+                            <ui:AddQueueItem.ItemInformation>
+                              <InArgument x:TypeArguments="x:String" x:Key="aktiviteNo">[row("Aktivite No").ToString]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="tarih">[row("Tarih").ToString]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="aktiviteTipi">[row("Aktivite Tipi").ToString]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="kapsam">[row("Kapsam").ToString]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="proje">[row("Proje").ToString]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="modul">[row("Modül").ToString]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="gelistirmeID">[row("Geliştirme ID").ToString]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="aktiviteYeri">[row("Aktivite Yeri").ToString]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="gidilenYer">[row("Gidilen Yer").ToString]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="calismaSaati">[row("Çalışma Saati").ToString]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="aktiviteAciklama">[row("Açıklama").ToString]</InArgument>
+                            </ui:AddQueueItem.ItemInformation>
+                          </ui:AddQueueItem>
+                        </If.Else>
+                      </If>
+                    </Sequence>
+                  </ActivityAction>
+                </ui:ForEachRow.Body>
+                <sap:WorkflowViewStateService.ViewState>
+                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                    <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                    <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                  </scg:Dictionary>
+                </sap:WorkflowViewStateService.ViewState>
+              </ui:ForEachRow>
+            </Sequence>
+          </If.Then>
+        </If>
+      </If.Then>
+    </If>
+    <ui:GetQueueItems Duration="{x:Null}" From="{x:Null}" Priority="{x:Null}" Skip="{x:Null}" TimeoutMS="{x:Null}" To="{x:Null}" Top="{x:Null}" DisplayName="Get Queue Items" FilterStrategy="Equals" sap:VirtualizedContainerService.HintSize="1003,22" sap2010:WorkflowViewState.IdRef="GetQueueItems_2" QueueItemStates="New, InProgress, Successful" QueueName="[in_Config(&quot;OrchestratorQueueName&quot;).ToString]" Reference="Masraf" Result="[queueItemMasraf]" />
+    <If Condition="[queueItemMasraf.Count() = 0]" sap:VirtualizedContainerService.HintSize="1003,2640" sap2010:WorkflowViewState.IdRef="If_6">
+      <If.Then>
+        <If Condition="[in_TransactionNumber &lt;= io_TransactionData.Rows.Count]" sap:VirtualizedContainerService.HintSize="858,2490" sap2010:WorkflowViewState.IdRef="If_5">
+          <If.Then>
+            <Sequence sap:VirtualizedContainerService.HintSize="713,2340" sap2010:WorkflowViewState.IdRef="Sequence_6">
+              <Sequence.Variables>
+                <Variable x:TypeArguments="sd:DataTable" Name="aktiviteTarihDT" />
+                <Variable x:TypeArguments="sd:DataTable" Name="faultyMasrafDT" />
+              </Sequence.Variables>
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                  <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+              <ui:ReadRange AddHeaders="True" DataTable="[io_TransactionData]" DisplayName="Read Range" sap:VirtualizedContainerService.HintSize="671,87" sap2010:WorkflowViewState.IdRef="ReadRange_2" SheetName="Sheet1" WorkbookPath="Data\Masraflar.xlsx">
+                <ui:ReadRange.Range>
+                  <InArgument x:TypeArguments="x:String">
+                    <Literal x:TypeArguments="x:String" Value="" />
+                  </InArgument>
+                </ui:ReadRange.Range>
+              </ui:ReadRange>
+              <ui:FilterDataTable DataTable="[io_TransactionData]" DisplayName="Filter Data Table" FilterRowsMode="Keep" sap:VirtualizedContainerService.HintSize="671,59" sap2010:WorkflowViewState.IdRef="FilterDataTable_3" OutputDataTable="[faultyMasrafDT]" SelectColumnsMode="Keep">
+                <ui:FilterDataTable.Filters>
+                  <scg:List x:TypeArguments="ui:FilterOperationArgument" Capacity="8">
+                    <ui:FilterOperationArgument Operand="{x:Null}" BooleanOperator="And" Operator="EMPTY">
+                      <ui:FilterOperationArgument.Column>
+                        <InArgument x:TypeArguments="x:String">["Aktivite No"]</InArgument>
+                      </ui:FilterOperationArgument.Column>
+                    </ui:FilterOperationArgument>
+                    <ui:FilterOperationArgument Operand="{x:Null}" BooleanOperator="Or" Operator="EMPTY">
+                      <ui:FilterOperationArgument.Column>
+                        <InArgument x:TypeArguments="x:String">["Masraf Türü"]</InArgument>
+                      </ui:FilterOperationArgument.Column>
+                    </ui:FilterOperationArgument>
+                    <ui:FilterOperationArgument Operand="{x:Null}" BooleanOperator="Or" Operator="EMPTY">
+                      <ui:FilterOperationArgument.Column>
+                        <InArgument x:TypeArguments="x:String">["Fiş No"]</InArgument>
+                      </ui:FilterOperationArgument.Column>
+                    </ui:FilterOperationArgument>
+                    <ui:FilterOperationArgument Operand="{x:Null}" BooleanOperator="Or" Operator="EMPTY">
+                      <ui:FilterOperationArgument.Column>
+                        <InArgument x:TypeArguments="x:String">["Kişi Sayısı"]</InArgument>
+                      </ui:FilterOperationArgument.Column>
+                    </ui:FilterOperationArgument>
+                    <ui:FilterOperationArgument Operand="{x:Null}" BooleanOperator="Or" Operator="EMPTY">
+                      <ui:FilterOperationArgument.Column>
+                        <InArgument x:TypeArguments="x:String">["Tutar"]</InArgument>
+                      </ui:FilterOperationArgument.Column>
+                    </ui:FilterOperationArgument>
+                    <ui:FilterOperationArgument Operand="{x:Null}" BooleanOperator="Or" Operator="EMPTY">
+                      <ui:FilterOperationArgument.Column>
+                        <InArgument x:TypeArguments="x:String">["Para Birimi"]</InArgument>
+                      </ui:FilterOperationArgument.Column>
+                    </ui:FilterOperationArgument>
+                    <ui:FilterOperationArgument Operand="{x:Null}" BooleanOperator="Or" Operator="EMPTY">
+                      <ui:FilterOperationArgument.Column>
+                        <InArgument x:TypeArguments="x:String">["Açıklama"]</InArgument>
+                      </ui:FilterOperationArgument.Column>
+                    </ui:FilterOperationArgument>
+                  </scg:List>
+                </ui:FilterDataTable.Filters>
+                <ui:FilterDataTable.SelectColumns>
+                  <scg:List x:TypeArguments="InArgument" Capacity="4">
+                    <x:Null />
+                  </scg:List>
+                </ui:FilterDataTable.SelectColumns>
+              </ui:FilterDataTable>
+              <ui:ForEachRow CurrentIndex="{x:Null}" DataTable="[faultyMasrafDT]" DisplayName="For Each Row" sap:VirtualizedContainerService.HintSize="671,923" sap2010:WorkflowViewState.IdRef="ForEachRow_4">
+                <ui:ForEachRow.Body>
+                  <ActivityAction x:TypeArguments="sd:DataRow">
+                    <ActivityAction.Argument>
+                      <DelegateInArgument x:TypeArguments="sd:DataRow" Name="row" />
+                    </ActivityAction.Argument>
+                    <Sequence DisplayName="Body" sap:VirtualizedContainerService.HintSize="526,774" sap2010:WorkflowViewState.IdRef="Sequence_16">
+                      <Sequence.Variables>
+                        <Variable x:TypeArguments="x:Int32" Name="rowIndexMasraf" />
+                      </Sequence.Variables>
+                      <sap:WorkflowViewStateService.ViewState>
+                        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                          <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                          <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                        </scg:Dictionary>
+                      </sap:WorkflowViewStateService.ViewState>
+                      <ui:WriteCell Cell="H1" DisplayName="Write Cell" sap:VirtualizedContainerService.HintSize="484,115" sap2010:WorkflowViewState.IdRef="WriteCell_4" SheetName="Sheet1" Text="Status" WorkbookPath="Data\Masraflar.xlsx" />
+                      <ui:LookupDataTable CellValue="{x:Null}" LookupColumnIndex="{x:Null}" LookupDataColumn="{x:Null}" TargetColumnIndex="{x:Null}" TargetColumnName="{x:Null}" TargetDataColumn="{x:Null}" DataTable="[io_TransactionData]" DisplayName="Lookup Data Table" sap:VirtualizedContainerService.HintSize="484,22" sap2010:WorkflowViewState.IdRef="LookupDataTable_2" LookupColumnName="Açıklama" LookupValue="[row.Item(6).ToString]" RowIndex="[rowIndexMasraf]" />
+                      <If Condition="[io_TransactionData.Columns.Contains(&quot;Status&quot;)]" sap:VirtualizedContainerService.HintSize="484,210" sap2010:WorkflowViewState.IdRef="If_13">
+                        <If.Else>
+                          <ui:AddDataColumn x:TypeArguments="x:String" Column="{x:Null}" DefaultValue="{x:Null}" AllowDBNull="True" AutoIncrement="False" ColumnName="Status" DataTable="[io_TransactionData]" DisplayName="Add Data Column" sap:VirtualizedContainerService.HintSize="200,22" sap2010:WorkflowViewState.IdRef="AddDataColumn`1_4" MaxLength="100" Unique="False" />
+                        </If.Else>
+                      </If>
+                      <ui:WriteCell Cell="[&quot;H&quot; + (rowIndexMasraf+2).ToString]" DisplayName="Write Cell" sap:VirtualizedContainerService.HintSize="484,115" sap2010:WorkflowViewState.IdRef="WriteCell_5" SheetName="Sheet1" Text="Failed" WorkbookPath="Data\Masraflar.xlsx" />
+                      <Assign sap:VirtualizedContainerService.HintSize="484,60" sap2010:WorkflowViewState.IdRef="Assign_8">
+                        <Assign.To>
+                          <OutArgument x:TypeArguments="x:Object">[io_TransactionData(rowIndexMasraf)("Status")]</OutArgument>
+                        </Assign.To>
+                        <Assign.Value>
+                          <InArgument x:TypeArguments="x:Object">["Failed"]</InArgument>
+                        </Assign.Value>
+                      </Assign>
+                    </Sequence>
+                  </ActivityAction>
+                </ui:ForEachRow.Body>
+                <sap:WorkflowViewStateService.ViewState>
+                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                    <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                    <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                  </scg:Dictionary>
+                </sap:WorkflowViewStateService.ViewState>
+              </ui:ForEachRow>
+              <ui:ReadRange AddHeaders="True" DataTable="[aktiviteTarihDT]" DisplayName="Read Range" sap:VirtualizedContainerService.HintSize="671,87" sap2010:WorkflowViewState.IdRef="ReadRange_3" SheetName="Sheet1" WorkbookPath="Data\Aktiviteler.xlsx">
+                <ui:ReadRange.Range>
+                  <InArgument x:TypeArguments="x:String">
+                    <Literal x:TypeArguments="x:String" Value="" />
+                  </InArgument>
+                </ui:ReadRange.Range>
+              </ui:ReadRange>
+              <ui:AddDataColumn x:TypeArguments="x:String" Column="{x:Null}" DefaultValue="{x:Null}" AllowDBNull="True" AutoIncrement="False" ColumnName="Tarih" DataTable="[io_TransactionData]" DisplayName="Add Data Column" sap:VirtualizedContainerService.HintSize="671,22" sap2010:WorkflowViewState.IdRef="AddDataColumn`1_1" MaxLength="100" Unique="False" />
+              <ui:ForEachRow CurrentIndex="{x:Null}" DataTable="[io_TransactionData]" DisplayName="For Each Row" sap:VirtualizedContainerService.HintSize="671,870" sap2010:WorkflowViewState.IdRef="ForEachRow_2">
+                <ui:ForEachRow.Body>
+                  <ActivityAction x:TypeArguments="sd:DataRow">
+                    <ActivityAction.Argument>
+                      <DelegateInArgument x:TypeArguments="sd:DataRow" Name="row" />
+                    </ActivityAction.Argument>
+                    <Sequence sap:VirtualizedContainerService.HintSize="621,721" sap2010:WorkflowViewState.IdRef="Sequence_12">
+                      <sap:WorkflowViewStateService.ViewState>
+                        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                          <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                        </scg:Dictionary>
+                      </sap:WorkflowViewStateService.ViewState>
+                      <TryCatch DisplayName="Try Catch" sap:VirtualizedContainerService.HintSize="579,292" sap2010:WorkflowViewState.IdRef="TryCatch_2">
+                        <sap:WorkflowViewStateService.ViewState>
+                          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                            <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                            <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                          </scg:Dictionary>
+                        </sap:WorkflowViewStateService.ViewState>
+                        <TryCatch.Try>
+                          <Assign sap:VirtualizedContainerService.HintSize="262,60" sap2010:WorkflowViewState.IdRef="Assign_5">
+                            <Assign.To>
+                              <OutArgument x:TypeArguments="x:Object">[row.Item("Tarih")]</OutArgument>
+                            </Assign.To>
+                            <Assign.Value>
+                              <InArgument x:TypeArguments="x:Object">[aktiviteTarihDT.Select("[Aktivite No]='"+ row.Item("Aktivite No").ToString +"'")(0).Item("Tarih").ToString]</InArgument>
+                            </Assign.Value>
+                          </Assign>
+                        </TryCatch.Try>
+                        <TryCatch.Catches>
+                          <Catch x:TypeArguments="s:IndexOutOfRangeException" sap:VirtualizedContainerService.HintSize="404,22" sap2010:WorkflowViewState.IdRef="Catch`1_3">
+                            <sap:WorkflowViewStateService.ViewState>
+                              <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                <x:Boolean x:Key="IsExpanded">False</x:Boolean>
+                                <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                              </scg:Dictionary>
+                            </sap:WorkflowViewStateService.ViewState>
+                            <ActivityAction x:TypeArguments="s:IndexOutOfRangeException">
+                              <ActivityAction.Argument>
+                                <DelegateInArgument x:TypeArguments="s:IndexOutOfRangeException" Name="exception" />
+                              </ActivityAction.Argument>
+                              <Sequence sap:VirtualizedContainerService.HintSize="376,237" sap2010:WorkflowViewState.IdRef="Sequence_11">
+                                <sap:WorkflowViewStateService.ViewState>
+                                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                    <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                                  </scg:Dictionary>
+                                </sap:WorkflowViewStateService.ViewState>
+                                <ui:SendOutlookMail Account="{x:Null}" Bcc="{x:Null}" Cc="{x:Null}" MailMessage="{x:Null}" TimeoutMS="{x:Null}" Body="[&quot;Aktivite numarası geçersizdir: &quot; + row.Item(&quot;Aktivite No&quot;).ToString]" DisplayName="Send Outlook Mail Message" sap:VirtualizedContainerService.HintSize="334,145" sap2010:WorkflowViewState.IdRef="SendOutlookMail_2" IsBodyHtml="False" IsDraft="False" Subject="ErrorMessages for ActivityExpense" To="[mailAddress]">
+                                  <ui:SendOutlookMail.Files>
+                                    <scg:List x:TypeArguments="InArgument(x:String)" Capacity="0" />
+                                  </ui:SendOutlookMail.Files>
+                                </ui:SendOutlookMail>
+                              </Sequence>
+                            </ActivityAction>
+                          </Catch>
+                        </TryCatch.Catches>
+                      </TryCatch>
+                      <If Condition="[row.Item(&quot;Status&quot;).ToString.Equals(&quot;Failed&quot;)]" sap:VirtualizedContainerService.HintSize="579,297" sap2010:WorkflowViewState.IdRef="If_11">
+                        <If.Then>
+                          <ui:SendOutlookMail Account="{x:Null}" Bcc="{x:Null}" Cc="{x:Null}" MailMessage="{x:Null}" TimeoutMS="{x:Null}" Body="Due to missing data/rows in Excel, there is/are (an expense)/expenses that cannot be entered whose status has been changed to failed." DisplayName="Send Outlook Mail Message" sap:VirtualizedContainerService.HintSize="334,147" sap2010:WorkflowViewState.IdRef="SendOutlookMail_4" IsBodyHtml="False" IsDraft="False" Subject="ErrorMessages for ActivityExpense" To="[mailAddress]">
+                            <ui:SendOutlookMail.Files>
+                              <scg:List x:TypeArguments="InArgument(x:String)" Capacity="4">
+                                <InArgument x:TypeArguments="x:String">C:\Users\TR30111\Documents\UiPath\LatestActivityExpense\Data\Masraflar.xlsx</InArgument>
+                              </scg:List>
+                            </ui:SendOutlookMail.Files>
+                          </ui:SendOutlookMail>
+                        </If.Then>
+                        <If.Else>
+                          <ui:AddQueueItem ServiceBaseAddress="{x:Null}" TimeoutMS="{x:Null}" DisplayName="Add Queue Item" sap:VirtualizedContainerService.HintSize="200,22" sap2010:WorkflowViewState.IdRef="AddQueueItem_2" Priority="Normal" QueueType="[in_Config(&quot;OrchestratorQueueName&quot;).ToString]" Reference="Masraf">
+                            <ui:AddQueueItem.ItemInformation>
+                              <InArgument x:TypeArguments="x:String" x:Key="aktiviteNo">[row("Aktivite No").ToString]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="masrafTuru">[row("Masraf Türü").ToString]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="fisNo">[row("Fiş No").ToString]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="kisiSayisi">[row("Kişi Sayısı").ToString]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="tutar">[row("Tutar").ToString]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="paraBirimi">[row("Para Birimi").ToString]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="masrafAciklama">[row("Açıklama").ToString]</InArgument>
+                              <InArgument x:TypeArguments="x:String" x:Key="tarih">[row("Tarih").ToString]</InArgument>
+                            </ui:AddQueueItem.ItemInformation>
+                          </ui:AddQueueItem>
+                        </If.Else>
+                      </If>
+                    </Sequence>
+                  </ActivityAction>
+                </ui:ForEachRow.Body>
+              </ui:ForEachRow>
+            </Sequence>
+          </If.Then>
+        </If>
+      </If.Then>
+    </If>
+    <ui:GetQueueItem ContinueOnError="{x:Null}" TimeoutMS="{x:Null}" DisplayName="Get Transaction Item" sap:VirtualizedContainerService.HintSize="1003,22" sap2010:WorkflowViewState.IdRef="GetQueueItem_1" QueueType="[in_Config(&quot;OrchestratorQueueName&quot;).ToString]" TransactionItem="[out_TransactionItem]" />
+    <TryCatch DisplayName="Try Catch" sap:VirtualizedContainerService.HintSize="1003,811" sap2010:WorkflowViewState.IdRef="TryCatch_3">
+      <TryCatch.Try>
+        <If Condition="[out_TransactionItem.Reference.Equals(&quot;Masraf&quot;)]" sap:VirtualizedContainerService.HintSize="671,579" sap2010:WorkflowViewState.IdRef="If_7">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+              <x:Boolean x:Key="IsPinned">False</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <If.Then>
+            <Sequence sap:VirtualizedContainerService.HintSize="526,429" sap2010:WorkflowViewState.IdRef="Sequence_14">
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+              <Assign sap:VirtualizedContainerService.HintSize="484,60" sap2010:WorkflowViewState.IdRef="Assign_6">
+                <Assign.To>
+                  <OutArgument x:TypeArguments="x:Int32">[io_masrafCounter]</OutArgument>
+                </Assign.To>
+                <Assign.Value>
+                  <InArgument x:TypeArguments="x:Int32">[io_masrafCounter +1]</InArgument>
+                </Assign.Value>
+              </Assign>
+              <If Condition="[io_masrafCounter = 1]" sap:VirtualizedContainerService.HintSize="484,237" sap2010:WorkflowViewState.IdRef="If_8">
+                <If.Then>
+                  <ui:InvokeWorkflowFile ContinueOnError="{x:Null}" DisplayName="Invoke SelectorID workflow" sap:VirtualizedContainerService.HintSize="334,87" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_1" UnSafe="False" WorkflowFileName="System\SelectorID.xaml">
+                    <ui:InvokeWorkflowFile.Arguments>
+                      <OutArgument x:TypeArguments="sd:DataTable" x:Key="statusCompletedDT">[io_statusCompletedDT]</OutArgument>
+                    </ui:InvokeWorkflowFile.Arguments>
+                  </ui:InvokeWorkflowFile>
+                </If.Then>
+              </If>
+            </Sequence>
+          </If.Then>
+        </If>
+      </TryCatch.Try>
+      <TryCatch.Catches>
+        <Catch x:TypeArguments="s:NullReferenceException" sap:VirtualizedContainerService.HintSize="675,22" sap2010:WorkflowViewState.IdRef="Catch`1_4">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">False</x:Boolean>
+              <x:Boolean x:Key="IsPinned">False</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <ActivityAction x:TypeArguments="s:NullReferenceException">
+            <ActivityAction.Argument>
+              <DelegateInArgument x:TypeArguments="s:NullReferenceException" Name="exception" />
+            </ActivityAction.Argument>
+          </ActivityAction>
+        </Catch>
+      </TryCatch.Catches>
+    </TryCatch>
+    <If Condition="[out_TransactionItem isNot Nothing]" DisplayName="If a new Item is fetched Grab it's significant data for logging" sap:VirtualizedContainerService.HintSize="1003,546" sap2010:WorkflowViewState.IdRef="If_1">
+      <If.Then>
+        <Sequence sap2010:Annotation.AnnotationText="Write data to the added fields that identify the Transaction" DisplayName="Write Transaction info in Logging Fields" sap:VirtualizedContainerService.HintSize="304,396" sap2010:WorkflowViewState.IdRef="Sequence_2">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <Assign DisplayName="Assign TransactionID" sap:VirtualizedContainerService.HintSize="262,60" sap2010:WorkflowViewState.IdRef="Assign_1">
+            <Assign.To>
+              <OutArgument x:TypeArguments="x:String">[out_TransactionID]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="x:String">[now.ToString]</InArgument>
+            </Assign.Value>
+          </Assign>
+          <Assign DisplayName="Assign TransactionField1" sap:VirtualizedContainerService.HintSize="262,60" sap2010:WorkflowViewState.IdRef="Assign_2">
+            <Assign.To>
+              <OutArgument x:TypeArguments="x:String">[out_TransactionField1]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="x:String">[string.Empty]</InArgument>
+            </Assign.Value>
+          </Assign>
+          <Assign DisplayName="Assign TransactionField1" sap:VirtualizedContainerService.HintSize="262,60" sap2010:WorkflowViewState.IdRef="Assign_4">
+            <Assign.To>
+              <OutArgument x:TypeArguments="x:String">[out_TransactionField2]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="x:String">[string.Empty]</InArgument>
+            </Assign.Value>
+          </Assign>
+        </Sequence>
+      </If.Then>
+    </If>
+  </Sequence>
+</Activity>
